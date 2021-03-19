@@ -1,0 +1,35 @@
+- hosts: all
+  tasks:
+          - yum:
+                  name: python36
+                  state: present
+          - pip:
+                  name: "docker"
+          - copy:
+                  dest: "/etc/yum.repos.d/docker.repo"
+                  src: "/etc/yum.repos.d/docker.repo"
+          - command: "yum install -y docker-ce --nobest"
+          - service:
+                  name: docker
+                  state: started
+                  enabled: true
+          - copy:
+                  dest: "/var/www/html/index.html"
+                  src: "/var/www/html/index.html"
+          - docker_image:
+                  name: httpd
+          - copy:
+                  dest: /tmp/firewalld.sh
+                  src: firewalld.sh
+          - command: "bash /tmp/firewalld.sh"
+          - docker_container:
+                  name: "kill"
+                  image: "httpd:latest"
+                  state: started
+                  ports:
+                          - "8080:80"
+                  volumes:
+                          - /var/www/html:/usr/local/apache2/htdocs
+
+
+
